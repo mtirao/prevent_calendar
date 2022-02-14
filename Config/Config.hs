@@ -7,4 +7,5 @@ import IHP.FrameworkConfig
 config :: ConfigBuilder
 config = do
     option Development
+    option (AppPort 9100)
     option (AppHostname "localhost")
