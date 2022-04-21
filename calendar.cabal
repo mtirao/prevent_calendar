@@ -38,4 +38,7 @@ executable calendar
                     , http-types
                     , time
     other-modules: 
-        Db.Db
+        Domain
+        ,Views
+        ,Db.Db
+        
