@@ -1,5 +1,14 @@
 module Main where
 
+import Db.Db as Db
+
+import Domain
+import Views
+
+import Controller.HospitalController
+import Controller.DoctorController
+import Controller.CalendarController
+
 import qualified Data.Configurator as C
 import qualified Data.Configurator.Types as C
 import qualified Data.Text.Lazy as TL
@@ -43,4 +52,12 @@ main = do
                 middleware $ staticPolicy (noDots >-> addBase "static") -- serve static files
                 middleware $ logStdout    
 
-                get "/" $ do text "hello"
+                -- HOSPITAL
+                post "/api/prevent/hospital" $ createHospital pool
+
+
+                -- CALENDAR
+                post "/api/prevent/calendar" $ createCalendar pool
+
+                -- DOCTOR
+                post "/api/prevent/doctor" $ createDoctor pool

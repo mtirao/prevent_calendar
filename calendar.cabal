@@ -41,4 +41,10 @@ executable calendar
         Domain
         ,Views
         ,Db.Db
+        ,Db.Calendars
+        ,Db.Doctors
+        ,Db.Hospitals
+        ,Controller.HospitalController
+        ,Controller.CalendarController 
+        ,Controller.DoctorController
         
