@@ -29,13 +29,18 @@ import Network.HTTP.Types.Status
 
 import Data.Aeson
 
+import Data.Time.Clock
+import Data.Time.LocalTime
+import Data.Time.Calendar
+
 ---CREATE
 createCalendar pool = do
                         b <- body
                         calendar <- return $ (decode b :: Maybe Calendar)
                         case calendar  of
                             Nothing -> status status400
-                            Just _ -> calendarResponse pool calendar 
+                            Just _ -> do  
+                                          calendarResponse pool calendar 
 
 calendarResponse pool calendar = do 
                                 dbCalendar <- liftIO $ insert pool calendar
@@ -45,3 +50,19 @@ calendarResponse pool calendar = do
                                                 where dbCalendarResponse  = do
                                                                         jsonResponse a
                                                                         status status201
+
+
+
+today :: IO (Integer,Int,Int) -- :: (year,month,day)
+today = getCurrentTime >>= return . toGregorian . utctDay
+
+-- diffLocalTime :: LocalTime -> LocalTime -> NominalDiffTime
+
+
+--validateDate :: LocalTime -> Maybe NominalDiffTime
+computeDiff lt = do
+                    today <- getCurrentTime
+                    timeZone <- getCurrentTimeZone
+                    let utcTime = utcToLocalTime timeZone today
+                    return (diffLocalTime utcTime lt)
+                    

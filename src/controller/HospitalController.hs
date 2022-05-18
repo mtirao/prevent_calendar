@@ -45,3 +45,8 @@ hospitalResponse pool hospital = do
                                                 where dbHospitalResponse  = do
                                                                         jsonResponse a
                                                                         status status201
+
+-- GET & LIST
+listHospital pool =  do
+                        hospitals <- liftIO $ (list pool :: IO [Hospital])
+                        jsonResponse hospitals
