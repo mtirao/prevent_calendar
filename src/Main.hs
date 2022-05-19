@@ -58,6 +58,7 @@ main = do
 
                 -- CALENDAR
                 post "/api/prevent/calendar" $ createCalendar pool
+                get "/api/prevent/calendar" $ listCalendar pool
 
                 -- DOCTOR
                 post "/api/prevent/doctor" $ createDoctor pool

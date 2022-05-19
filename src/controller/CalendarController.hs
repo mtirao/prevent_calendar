@@ -39,8 +39,13 @@ createCalendar pool = do
                         calendar <- return $ (decode b :: Maybe Calendar)
                         case calendar  of
                             Nothing -> status status400
-                            Just _ -> do  
-                                          calendarResponse pool calendar 
+                            Just a -> dateValidation (date a) pool calendar
+                                         
+dateValidation lt pool calendar = do 
+                                    valid <- liftIO $ isValidDate lt
+                                    case valid of
+                                        Nothing -> status status400
+                                        Just _ -> calendarResponse pool calendar
 
 calendarResponse pool calendar = do 
                                 dbCalendar <- liftIO $ insert pool calendar
@@ -52,17 +57,29 @@ calendarResponse pool calendar = do
                                                                         status status201
 
 
+-- GET & LIST
+listCalendar pool =  do
+                        b <- body
+                        calendar <- return $ (decode b :: Maybe CalendarRequest)
+                        case calendar of
+                            Nothing -> status status400
+                            Just _ ->  calendarListResponse pool calendar
+                                        
 
-today :: IO (Integer,Int,Int) -- :: (year,month,day)
-today = getCurrentTime >>= return . toGregorian . utctDay
+calendarListResponse pool calendar = do
+                                        calendars <- liftIO $ (findCalendar pool calendar :: IO [Calendar])
+                                        jsonResponse calendars
 
--- diffLocalTime :: LocalTime -> LocalTime -> NominalDiffTime
+-- HELPERS
+--today :: IO (Integer,Int,Int) -- :: (year,month,day)
+--today = getCurrentTime >>= return . toGregorian . utctDay
 
-
---validateDate :: LocalTime -> Maybe NominalDiffTime
 computeDiff lt = do
                     today <- getCurrentTime
                     timeZone <- getCurrentTimeZone
-                    let utcTime = utcToLocalTime timeZone today
-                    return (diffLocalTime utcTime lt)
-                    
+                    let localTime = utcToLocalTime timeZone today
+                    return (diffLocalTime localTime lt)          
+
+isValidDate lt = do
+                 diff <- computeDiff lt
+                 if (nominalDiffTimeToSeconds diff <= 0) then return $ Just True else return Nothing 
