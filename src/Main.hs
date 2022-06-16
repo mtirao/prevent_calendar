@@ -5,9 +5,9 @@ import Db as Db
 import Domain
 import Views
 
-import Controller.HospitalController
-import Controller.DoctorController
-import Controller.CalendarController
+import HospitalController
+import DoctorController
+import CalendarController
 
 import qualified Data.Configurator as C
 import qualified Data.Configurator.Types as C
