@@ -54,10 +54,12 @@ main = do
 
                 -- HOSPITAL
                 post "/api/prevent/hospital" $ createHospital pool
-
+                get "/api/prevent/hospital" $ listHospital pool
 
                 -- CALENDAR
                 post "/api/prevent/calendar" $ createCalendar pool
+                get "/api/prevent/calendar" $ listCalendar pool
 
                 -- DOCTOR
                 post "/api/prevent/doctor" $ createDoctor pool
+                get "/api/prevent/doctor" $ listDoctor pool

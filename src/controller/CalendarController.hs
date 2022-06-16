@@ -29,13 +29,23 @@ import Network.HTTP.Types.Status
 
 import Data.Aeson
 
+import Data.Time.Clock
+import Data.Time.LocalTime
+import Data.Time.Calendar
+
 ---CREATE
 createCalendar pool = do
                         b <- body
                         calendar <- return $ (decode b :: Maybe Calendar)
                         case calendar  of
                             Nothing -> status status400
-                            Just _ -> calendarResponse pool calendar 
+                            Just a -> dateValidation (date a) pool calendar
+                                         
+dateValidation lt pool calendar = do 
+                                    valid <- liftIO $ isValidDate lt
+                                    case valid of
+                                        Nothing -> status status400
+                                        Just _ -> calendarResponse pool calendar
 
 calendarResponse pool calendar = do 
                                 dbCalendar <- liftIO $ insert pool calendar
@@ -45,3 +55,31 @@ calendarResponse pool calendar = do
                                                 where dbCalendarResponse  = do
                                                                         jsonResponse a
                                                                         status status201
+
+
+-- GET & LIST
+listCalendar pool =  do
+                        b <- body
+                        calendar <- return $ (decode b :: Maybe CalendarRequest)
+                        case calendar of
+                            Nothing -> status status400
+                            Just _ ->  calendarListResponse pool calendar
+                                        
+
+calendarListResponse pool calendar = do
+                                        calendars <- liftIO $ (findCalendar pool calendar :: IO [Calendar])
+                                        jsonResponse calendars
+
+-- HELPERS
+--today :: IO (Integer,Int,Int) -- :: (year,month,day)
+--today = getCurrentTime >>= return . toGregorian . utctDay
+
+computeDiff lt = do
+                    today <- getCurrentTime
+                    timeZone <- getCurrentTimeZone
+                    let localTime = utcToLocalTime timeZone today
+                    return (diffLocalTime localTime lt)          
+
+isValidDate lt = do
+                 diff <- computeDiff lt
+                 if (nominalDiffTimeToSeconds diff <= 0) then return $ Just True else return Nothing 

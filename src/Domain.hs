@@ -21,20 +21,23 @@ data Calendar = Calendar
     {calendarId :: Maybe Integer
     , relCalendarDoctorId :: Integer
     , date :: LocalTime
+    , relCalendarPatientId :: Integer
     }
 
 instance ToJSON Calendar where
     toJSON Calendar {..} = object [
         "id" .= calendarId,
         "doctorid" .= relCalendarDoctorId,
-        "date" .= date
+        "date" .= date,
+        "patientid" .= relCalendarPatientId
         ]
 
 instance FromJSON Calendar where
     parseJSON (Object v) = Calendar <$>
         v .:?  "id" <*>
         v .:  "doctorid" <*>
-        v .:  "date"
+        v .:  "date" <*>
+        v .: "patientid"
 
 -- Doctor
 data Doctor = Doctor
@@ -90,3 +93,14 @@ instance FromJSON Hospital where
         v .:? "id" <*>
         v .: "name" <*>
         v .: "state"
+
+data CalendarRequest = CalendarRequest 
+    {
+    toDate :: LocalTime
+    , fromDate :: LocalTime
+    }
+
+instance FromJSON CalendarRequest where
+    parseJSON (Object v) = CalendarRequest <$>
+        v .: "todate" <*>
+        v .: "fromdate"

@@ -22,7 +22,7 @@ import Data.Time.LocalTime
 
 executeDoctor:: Pool Connection -> Doctor -> Query -> IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
 executeDoctor pool a query = do
-                                fetch pool ((availableDay a), (relDoctorDoctorId a), (endShift a), (relHospitalDoctorId a), (doctorId a), (startShift a)) query :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
+                                fetch pool ((availableDay a), (relDoctorDoctorId a), (endShift a), (relHospitalDoctorId a), (startShift a)) query :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
 
 
 
