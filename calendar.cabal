@@ -16,6 +16,8 @@ cabal-version:       >=1.10
 
 executable calendar
     hs-source-dirs: src
+                    , src/db
+                    , src/controller
     main-is:        Main.hs
     ghc-options:    -threaded -O2 -rtsopts -with-rtsopts=-N  -Wname-shadowing
     extensions:     OverloadedStrings
@@ -40,10 +42,10 @@ executable calendar
     other-modules: 
         Domain
         ,Views
-        ,Db.Db
-        ,Db.Calendars
-        ,Db.Doctors
-        ,Db.Hospitals
+        ,Db
+        ,Calendars
+        ,Doctors
+        ,Hospitals
         ,Controller.HospitalController
         ,Controller.CalendarController 
         ,Controller.DoctorController

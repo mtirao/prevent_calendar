@@ -1,6 +1,6 @@
 module Main where
 
-import Db.Db as Db
+import Db as Db
 
 import Domain
 import Views
@@ -20,14 +20,14 @@ import Web.Scotty.Internal.Types (ActionT)
 
 import Database.PostgreSQL.Simple
 
-import Db.Db as Db
+import Db as Db
 
 import Network.Wai.Middleware.Static
 import Network.Wai.Middleware.RequestLogger (logStdout)
 import Network.HTTP.Types.Status
 
 -- Parse file "application.conf" and get the DB connection info
-makeDbConfig :: C.Config -> IO (Maybe Db.DbConfig)
+makeDbConfig :: C.Config -> IO (Maybe DbConfig)
 makeDbConfig conf = do
     dbConfname <- C.lookup conf "database.name" :: IO (Maybe String)
     dbConfUser <- C.lookup conf "database.user" :: IO (Maybe String)
