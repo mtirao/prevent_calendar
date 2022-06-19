@@ -2,9 +2,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Hospitals where
+module Db.Hospitals where
 
-import Db
+import Db.Db
 import Domain
 
 import Web.Scotty.Internal.Types (ActionT)

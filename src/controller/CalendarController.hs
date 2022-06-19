@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module CalendarController where
+module Controller.CalendarController where
 
 import Domain
 import Views
-import Calendars
-import Db
+import Db.Calendars
+import Db.Db
 
 import Web.Scotty
 import Web.Scotty.Internal.Types (ActionT)

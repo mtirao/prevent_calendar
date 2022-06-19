@@ -2,9 +2,9 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 
-module Calendars where
+module Db.Calendars where
 
-import Db
+import Db.Db
 import Domain
 
 import Web.Scotty.Internal.Types (ActionT)

@@ -1,13 +1,13 @@
 module Main where
 
-import Db as Db
+import Db.Db as Db
 
 import Domain
 import Views
 
-import HospitalController
-import DoctorController
-import CalendarController
+import Controller.HospitalController
+import Controller.DoctorController
+import Controller.CalendarController
 
 import qualified Data.Configurator as C
 import qualified Data.Configurator.Types as C
@@ -20,7 +20,7 @@ import Web.Scotty.Internal.Types (ActionT)
 
 import Database.PostgreSQL.Simple
 
-import Db as Db
+import Db.Db as Db
 
 import Network.Wai.Middleware.Static
 import Network.Wai.Middleware.RequestLogger (logStdout)
