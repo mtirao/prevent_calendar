@@ -13,7 +13,7 @@ import qualified Data.Text.Lazy as TL
 import Control.Monad.IO.Class()
 import Web.Scotty.Internal.Types()
 
-import Db.Db
+import Db
 
 import Web.Scotty
 import Web.Scotty.Internal.Types (ActionT)

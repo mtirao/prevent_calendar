@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
-module Db.Db where
+module Db where
 
 import Web.Scotty.Internal.Types (ActionT)
 import GHC.Generics (Generic)
