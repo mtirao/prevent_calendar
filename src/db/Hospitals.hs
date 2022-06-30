@@ -45,6 +45,11 @@ instance DbOperation Hospital where
                     res <- fetchSimple pool "SELECT address, city, id, name, state FROM hospitals" :: IO [(TL.Text, TL.Text, Maybe Integer, TL.Text, TL.Text)]
                     return $ map (\a -> buildHospital a) res
 
+    update pool (Just a) id= do
+                res <- fetch pool ((address a), (city a), (name a), (state a), id) "UPDATE hospitals SET address=?, city=?, name=?, state=? WHERE id=? RETURNING address, city, id, name, state" :: IO [(TL.Text, TL.Text, Maybe Integer, TL.Text, TL.Text)]
+                return $ oneHospital res
+
+
     find  pool id = do 
                         res <- fetch pool (Only id) "SELECT address, city, id, name, state FROM hospitals where id=?" :: IO [(TL.Text, TL.Text, Maybe Integer, TL.Text, TL.Text)]
                         return $ oneHospital res

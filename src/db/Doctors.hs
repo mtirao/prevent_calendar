@@ -45,6 +45,11 @@ instance DbOperation Doctor where
                     res <- fetchSimple pool "SELECT available_day, doctor_id, end_shift, hospital_id, id, start_shift FROM doctors" :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
                     return $ map (\a -> buildDoctor a) res
 
+    update pool (Just a) id= do
+                res <- executeDoctor pool a "UPDATE doctors SET cell_phone=?, email=?, first_name=?, last_name=?, phone=?, gender=?, address=?, city=? WHERE id=? RETURNING  cell_phone, email, first_name, last_name, phone, user_name, user_password, user_role, id, gender, address, city" :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
+                return $ oneDoctor res
+
+
     find  pool id = do 
                         res <- fetch pool (Only id) "SELECT available_day, doctor_id, end_shift, hospital_id, id, start_shift FROM doctors where id=?" :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
                         return $ oneDoctor res

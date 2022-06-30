@@ -46,7 +46,30 @@ hospitalResponse pool hospital = do
                                                                         jsonResponse a
                                                                         status status201
 
+---UPDATE
+updateHospital pool id = do
+                        b <- body
+                        hospital <- return $ (decode b :: Maybe Hospital)
+                        case hospital of
+                            Nothing -> status status400
+                            Just _ -> updateHospitalResponse pool hospital id
+
+updateHospitalResponse pool hospital id = do 
+                                dbHospital <- liftIO $ update pool hospital id
+                                case dbHospital of
+                                        Nothing -> status status400
+                                        Just a -> dbHospitalResponse 
+                                                where dbHospitalResponse  = do
+                                                                        jsonResponse a
+                                                                        status status201
+
+
 -- GET & LIST
 listHospital pool =  do
                         hospitals <- liftIO $ (list pool :: IO [Hospital])
                         jsonResponse hospitals
+
+--- GET
+getHospital pool idd = do
+                        hospital <- liftIO $ (find pool idd :: IO (Maybe Hospital))
+                        jsonResponse hospital

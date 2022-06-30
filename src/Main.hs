@@ -54,12 +54,18 @@ main = do
 
                 -- HOSPITAL
                 post "/api/prevent/hospital" $ createHospital pool
-                get "/api/prevent/hospital" $ listHospital pool
+                get "/api/prevent/hospitals" $ listHospital pool
+                get "/api/prevent/hospital/:id" $ do 
+                                                    idd <- param "id" :: ActionM TL.Text
+                                                    getHospital pool idd
+                put "/api/prevent/hospital/:id" $ do 
+                                                    idd <- param "id" :: ActionM TL.Text
+                                                    updateHospital pool idd
 
                 -- CALENDAR
                 post "/api/prevent/calendar" $ createCalendar pool
-                get "/api/prevent/calendar" $ listCalendar pool
+                get "/api/prevent/calendars" $ listCalendar pool
 
                 -- DOCTOR
                 post "/api/prevent/doctor" $ createDoctor pool
-                get "/api/prevent/doctor" $ listDoctor pool
+                get "/api/prevent/doctors" $ listDoctor pool
