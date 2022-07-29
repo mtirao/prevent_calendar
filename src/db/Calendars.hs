@@ -39,7 +39,7 @@ oneCalendar _ = Nothing
 
 instance DbOperation Calendar where
     insert pool (Just a) = do
-                res <- executeCalendar pool a "INSERT INTO calendars(doctor_id, date) VALUES(?,?) RETURNING id, doctor_id, date"
+                res <- executeCalendar pool a "INSERT INTO calendars(doctor_id, date, patient_id) VALUES(?,?, ?) RETURNING id, doctor_id, date, patient_id"
                 return $ oneCalendar res
 
     list  pool = do
