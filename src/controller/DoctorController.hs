@@ -5,8 +5,8 @@ module DoctorController where
 
 import Domain
 import Views
-import Doctors
-import Db
+import Db.Doctors
+import Db.Db
 
 import Web.Scotty
 import Web.Scotty.Internal.Types (ActionT)
@@ -50,3 +50,4 @@ doctorResponse pool doctor = do
 listDoctor pool =  do
                         doctors <- liftIO $ (list pool :: IO [Doctor])
                         jsonResponse doctors
+

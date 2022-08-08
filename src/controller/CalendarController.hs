@@ -5,8 +5,9 @@ module CalendarController where
 
 import Domain
 import Views
-import Calendars
-import Db
+import Db.Calendars
+import Db.Doctors
+import Db.Db
 
 import Web.Scotty
 import Web.Scotty.Internal.Types (ActionT)
@@ -83,3 +84,50 @@ computeDiff lt = do
 isValidDate lt = do
                  diff <- computeDiff lt
                  if (nominalDiffTimeToSeconds diff <= 0) then return $ Just True else return Nothing 
+
+isDoctorAvaible :: Pool Connection -> TL.Text -> DayOfWeek -> Maybe Bool
+isDoctorAvaible pool idd day = 
+
+findDoctorDayAvailability:: Pool Connection -> TL.Text -> IO (Maybe Integer)
+findDoctorDayAvailability pool idd = do 
+                        doctor <- find pool idd :: IO (Maybe Doctor)
+                        case doctor of
+                            Nothing -> return Nothing
+                            Just a -> return $ Just (availableDay a)
+
+
+
+findDoctorDayStartShift pool idd = do 
+                        doctor <- find pool idd :: IO (Maybe Doctor)
+                        case doctor of
+                            Nothing -> return Nothing
+                            Just a -> return $ Just (startShift a)
+
+
+findDoctorDayEndShift pool idd = do 
+                        doctor <- find pool idd :: IO (Maybe Doctor)
+                        case doctor of
+                            Nothing -> return Nothing
+                            Just a -> return $ Just (endShift a)
+
+toBin 0 = []
+toBin n | n > 127 = []
+        | n `mod` 2 == 1 = toBin (n `div` 2) ++ [1]
+        | n `mod` 2 == 0 = toBin (n `div` 2) ++ [0]
+
+toDecimal :: [Integer] -> Integer
+toDecimal [] = 0
+toDecimal (x:xs) = (x * 2 ^(length xs)) + toDecimal xs
+
+listOfN n = take n (repeat 0)
+
+toBinaryList :: [Integer] -> [Integer]
+toBinaryList l = listOfN (7 - (length l)) ++ l 
+
+toZipList :: Integer -> [(Integer, DayOfWeek)]
+toZipList i = zip (toBinaryList (toBin i)) [Sunday, Monday,Tuesday, Wednesday, Thursday, Friday, Saturday]
+
+isAvailableDay :: [(Integer, DayOfWeek)] -> [DayOfWeek]
+isAvailableDay [] = []
+isAvailableDay (x:xs) = checkAvailability x ++ isAvailableDay xs
+                                where checkAvailability (a,b) = if a == 1 then [b] else []

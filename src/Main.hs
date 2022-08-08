@@ -1,6 +1,6 @@
 module Main where
 
-import Db as Db
+import Db.Db as Db
 
 import Domain
 import Views
@@ -19,8 +19,6 @@ import Web.Scotty
 import Web.Scotty.Internal.Types (ActionT)
 
 import Database.PostgreSQL.Simple
-
-import Db as Db
 
 import Network.Wai.Middleware.Static
 import Network.Wai.Middleware.RequestLogger (logStdout)
