@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE DeriveGeneric #-}
 
+
 module CalendarController where
 
 import Domain
@@ -20,6 +21,8 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
 import qualified Data.ByteString.Lazy.Char8 as BL
 import qualified Data.Text as T
+import qualified Data.Text.Lazy.Builder as B
+import qualified Data.Text.Lazy.Builder.Int as B
 
 import GHC.Int
 import GHC.Generics (Generic)
@@ -40,22 +43,34 @@ createCalendar pool = do
                         calendar <- return $ (decode b :: Maybe Calendar)
                         case calendar  of
                             Nothing -> status status400
-                            Just a -> dateValidation (date a) pool calendar
-                                         
-dateValidation lt pool calendar = do 
-                                    valid <- liftIO $ isValidDate lt
+                            Just a -> dateValidation pool a
+
+
+dateValidation pool calendar = do 
+                                    valid <- liftIO $ isValidDate (date calendar)
                                     case valid of
                                         Nothing -> status status400
-                                        Just _ -> calendarResponse pool calendar
+                                        Just _ -> validateDoctorAvailability pool calendar
+
+validateDoctorAvailability pool calendar = do
+                                                available <- liftIO $ (findDoctorDayAvailability pool (relCalendarDoctorId calendar) :: IO (Maybe Integer))
+                                                case available of 
+                                                    Nothing -> status status400
+                                                    Just a -> checkDoctorAvailability (localDay (date calendar)) a
+                                                                where checkDoctorAvailability day i =  if elem (dayOfWeek day) (getAvailableDay $ toZipList i)
+                                                                                                        then calendarResponse pool (Just calendar) 
+                                                                                                        else status status400
+
+
 
 calendarResponse pool calendar = do 
-                                dbCalendar <- liftIO $ insert pool calendar
-                                case dbCalendar of
-                                        Nothing -> status status400
-                                        Just a -> dbCalendarResponse 
-                                                where dbCalendarResponse  = do
-                                                                        jsonResponse a
-                                                                        status status201
+                                    dbCalendar <- liftIO $ insert pool calendar
+                                    case dbCalendar of
+                                            Nothing -> status status400
+                                            Just a -> dbCalendarResponse 
+                                                    where dbCalendarResponse  = do
+                                                                            jsonResponse a
+                                                                            status status201
 
 
 -- GET & LIST
@@ -82,33 +97,33 @@ computeDiff lt = do
                     return (diffLocalTime localTime lt)          
 
 isValidDate lt = do
-                 diff <- computeDiff lt
-                 if (nominalDiffTimeToSeconds diff <= 0) then return $ Just True else return Nothing 
+                    diff <- computeDiff lt
+                    if (nominalDiffTimeToSeconds diff <= 0) then return $ Just True else return Nothing 
 
-isDoctorAvaible :: Pool Connection -> TL.Text -> DayOfWeek -> Maybe Bool
-isDoctorAvaible pool idd day = 
+--isDoctorAvaible :: Pool Connection -> TL.Text -> DayOfWeek -> Maybe Bool
+--isDoctorAvaible pool idd day = 
 
-findDoctorDayAvailability:: Pool Connection -> TL.Text -> IO (Maybe Integer)
+findDoctorDayAvailability:: Pool Connection -> Integer -> IO (Maybe Integer)
 findDoctorDayAvailability pool idd = do 
-                        doctor <- find pool idd :: IO (Maybe Doctor)
-                        case doctor of
-                            Nothing -> return Nothing
-                            Just a -> return $ Just (availableDay a)
+                                        doctor <- findDoctor pool idd :: IO (Maybe Doctor)
+                                        case doctor of
+                                            Nothing -> return Nothing
+                                            Just a -> return $ Just (availableDay a)
 
 
 
 findDoctorDayStartShift pool idd = do 
-                        doctor <- find pool idd :: IO (Maybe Doctor)
-                        case doctor of
-                            Nothing -> return Nothing
-                            Just a -> return $ Just (startShift a)
+                                    doctor <- find pool idd :: IO (Maybe Doctor)
+                                    case doctor of
+                                        Nothing -> return Nothing
+                                        Just a -> return $ Just (startShift a)
 
 
 findDoctorDayEndShift pool idd = do 
-                        doctor <- find pool idd :: IO (Maybe Doctor)
-                        case doctor of
-                            Nothing -> return Nothing
-                            Just a -> return $ Just (endShift a)
+                                    doctor <- find pool idd :: IO (Maybe Doctor)
+                                    case doctor of
+                                        Nothing -> return Nothing
+                                        Just a -> return $ Just (endShift a)
 
 toBin 0 = []
 toBin n | n > 127 = []
@@ -127,7 +142,7 @@ toBinaryList l = listOfN (7 - (length l)) ++ l
 toZipList :: Integer -> [(Integer, DayOfWeek)]
 toZipList i = zip (toBinaryList (toBin i)) [Sunday, Monday,Tuesday, Wednesday, Thursday, Friday, Saturday]
 
-isAvailableDay :: [(Integer, DayOfWeek)] -> [DayOfWeek]
-isAvailableDay [] = []
-isAvailableDay (x:xs) = checkAvailability x ++ isAvailableDay xs
+getAvailableDay :: [(Integer, DayOfWeek)] -> [DayOfWeek]
+getAvailableDay [] = []
+getAvailableDay (x:xs) = checkAvailability x ++ getAvailableDay xs
                                 where checkAvailability (a,b) = if a == 1 then [b] else []
