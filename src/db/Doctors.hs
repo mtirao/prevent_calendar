@@ -56,6 +56,6 @@ instance DbOperation Doctor where
 
 findDoctor :: Pool Connection -> Integer -> IO (Maybe Doctor)
 findDoctor pool id = do 
-                        res <- fetch pool (Only id) "SELECT available_day, doctor_id, end_shift, hospital_id, id, start_shift FROM doctors where id=?" :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
+                        res <- fetch pool (Only (TL.pack $ show id)) "SELECT available_day, doctor_id, end_shift, hospital_id, id, start_shift FROM doctors where doctor_id=?" :: IO [(Integer, Integer, Float,  Integer, Maybe Integer, Float)]
                         return $ oneDoctor res
 

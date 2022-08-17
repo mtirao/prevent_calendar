@@ -55,18 +55,17 @@ dateValidation pool calendar = do
 validateDoctorAvailability pool calendar = do
                                                 available <- liftIO $ (findDoctorDayAvailability pool (relCalendarDoctorId calendar) :: IO (Maybe Integer))
                                                 case available of 
-                                                    Nothing -> status status400
+                                                    Nothing -> status status403
                                                     Just a -> checkDoctorAvailability (localDay (date calendar)) a
                                                                 where checkDoctorAvailability day i =  if elem (dayOfWeek day) (getAvailableDay $ toZipList i)
                                                                                                         then calendarResponse pool (Just calendar) 
                                                                                                         else status status400
-
-
+                                                                                                        
 
 calendarResponse pool calendar = do 
                                     dbCalendar <- liftIO $ insert pool calendar
                                     case dbCalendar of
-                                            Nothing -> status status400
+                                            Nothing -> status status401
                                             Just a -> dbCalendarResponse 
                                                     where dbCalendarResponse  = do
                                                                             jsonResponse a
@@ -87,9 +86,8 @@ calendarListResponse pool calendar = do
                                         jsonResponse calendars
 
 -- HELPERS
---today :: IO (Integer,Int,Int) -- :: (year,month,day)
---today = getCurrentTime >>= return . toGregorian . utctDay
 
+-- Date Helpers
 computeDiff lt = do
                     today <- getCurrentTime
                     timeZone <- getCurrentTimeZone
@@ -100,14 +98,13 @@ isValidDate lt = do
                     diff <- computeDiff lt
                     if (nominalDiffTimeToSeconds diff <= 0) then return $ Just True else return Nothing 
 
---isDoctorAvaible :: Pool Connection -> TL.Text -> DayOfWeek -> Maybe Bool
---isDoctorAvaible pool idd day = 
 
+-- Database Helpers
 findDoctorDayAvailability:: Pool Connection -> Integer -> IO (Maybe Integer)
 findDoctorDayAvailability pool idd = do 
                                         doctor <- findDoctor pool idd :: IO (Maybe Doctor)
                                         case doctor of
-                                            Nothing -> return Nothing
+                                            Nothing -> return $ Nothing
                                             Just a -> return $ Just (availableDay a)
 
 
@@ -125,6 +122,7 @@ findDoctorDayEndShift pool idd = do
                                         Nothing -> return Nothing
                                         Just a -> return $ Just (endShift a)
 
+-- Integer to DayOfWeek helpers
 toBin 0 = []
 toBin n | n > 127 = []
         | n `mod` 2 == 1 = toBin (n `div` 2) ++ [1]
